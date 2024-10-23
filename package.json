@@ -1,0 +1,36 @@
+{
+  "name": "wikipatra",
+  "version": "0.1.0",
+  "description": "VSCode extension for Wikipedia translation assistance",
+  "main": "out/extension.js",
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=out/extension.js --platform=node --external:vscode",
+    "watch": "esbuild src/extension.ts --bundle --outfile=out/extension.js --watch --platform=node --external:vscode",
+    "esbuild": "esbuild src/extension.ts src/commands/fetchWikiContent.ts --bundle --outdir=out --platform=node --external:vscode",
+    "prepare": "npm run esbuild"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "esbuild": "^0.18.0"
+  },
+  "dependencies": {
+    "@types/vscode": "latest",
+    "@vscode/test-electron": "latest",
+    "node-fetch": "^3.0.0"
+  },
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "activationEvents": [
+    "onCommand:extension.startTranslation"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.startTranslation",
+        "title": "Start Wikipedia Translation"
+      }
+    ]
+  }
+}
