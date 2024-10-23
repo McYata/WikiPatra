@@ -5132,6 +5132,7 @@ var init_multipart_parser = __esm({
 var extension_exports = {};
 __export(extension_exports, {
   activate: () => activate,
+  closeAllEditors: () => closeAllEditors,
   deactivate: () => deactivate
 });
 module.exports = __toCommonJS(extension_exports);
@@ -6494,10 +6495,15 @@ async function postTranslation(language, targetTitle, content) {
 }
 
 // src/extension.ts
+async function closeAllEditors() {
+  await vscode4.commands.executeCommand("workbench.action.closeAllEditors");
+  await vscode4.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+}
 function activate(context) {
   const startTranslationCommand = vscode4.commands.registerCommand(
     "extension.startTranslation",
     async () => {
+      await closeAllEditors();
       const sourceLanguage = await vscode4.window.showInputBox({
         placeHolder: "Enter source language for the Wikipedia article (e.g., en for English)"
       });
@@ -6544,6 +6550,7 @@ function deactivate() {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   activate,
+  closeAllEditors,
   deactivate
 });
 /*! Bundled license information:

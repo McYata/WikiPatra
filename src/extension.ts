@@ -3,10 +3,19 @@ import { fetchWikiContent } from './commands/fetchWikiContent';
 import { createTranslationTab } from './commands/createTranslationTab';
 import { postTranslation } from './commands/postTranslation';
 
+export async function closeAllEditors() {
+  // 保存されていないエディタも含め、すべてのタブを強制的に閉じる
+  await vscode.commands.executeCommand('workbench.action.closeAllEditors');
+  await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
+}
+
 export function activate(context: vscode.ExtensionContext) {
   const startTranslationCommand = vscode.commands.registerCommand(
     'extension.startTranslation',
     async () => {
+      // 既存のタブをすべて閉じる
+      await closeAllEditors();
+
       const sourceLanguage = await vscode.window.showInputBox({
         placeHolder: 'Enter source language for the Wikipedia article (e.g., en for English)',
       });
@@ -46,7 +55,6 @@ export function activate(context: vscode.ExtensionContext) {
       await fetchWikiContent(sourceLanguage, articleTitle);
       const editor = await createTranslationTab(targetLanguage, targetArticleTitle);
 
-      // Add command to post the translated content
       const postCommand = vscode.commands.registerCommand('extension.postTranslation', async () => {
         if (editor) {
           const content = editor.document.getText();
