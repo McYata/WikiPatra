@@ -6418,15 +6418,8 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 }
 
 // src/commands/fetchWikiContent.ts
-async function fetchWikiContent(language) {
-  const articleTitle = await vscode.window.showInputBox({
-    placeHolder: "Enter the title of the Wikipedia article in English"
-  });
-  if (!articleTitle) {
-    vscode.window.showErrorMessage("Article title is required");
-    return;
-  }
-  const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
+async function fetchWikiContent(language, articleTitle) {
+  const url = `https://${language}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
     articleTitle
   )}&prop=revisions&rvprop=content&format=json`;
   try {
@@ -6438,7 +6431,7 @@ async function fetchWikiContent(language) {
       vscode.window.showErrorMessage("Article not found");
     } else {
       const content = pages[pageId].revisions[0]["*"];
-      const editor = await vscode.window.showTextDocument(
+      await vscode.window.showTextDocument(
         await vscode.workspace.openTextDocument({
           content,
           language: "wikitext"
@@ -6446,7 +6439,7 @@ async function fetchWikiContent(language) {
       );
     }
   } catch (error) {
-    vscode.window.showErrorMessage("Error fetching Wikipedia content");
+    vscode.window.showErrorMessage("Error fetching Wikipedia content: " + error.message);
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

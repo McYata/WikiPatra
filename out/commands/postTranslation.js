@@ -5128,16 +5128,12 @@ var init_multipart_parser = __esm({
   }
 });
 
-// src/extension.ts
-var extension_exports = {};
-__export(extension_exports, {
-  activate: () => activate,
-  deactivate: () => deactivate
+// src/commands/postTranslation.ts
+var postTranslation_exports = {};
+__export(postTranslation_exports, {
+  postTranslation: () => postTranslation
 });
-module.exports = __toCommonJS(extension_exports);
-var vscode4 = __toESM(require("vscode"));
-
-// src/commands/fetchWikiContent.ts
+module.exports = __toCommonJS(postTranslation_exports);
 var vscode = __toESM(require("vscode"));
 
 // node_modules/node-fetch/src/index.js
@@ -6421,53 +6417,13 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
   });
 }
 
-// src/commands/fetchWikiContent.ts
-async function fetchWikiContent(language, articleTitle) {
-  const url = `https://${language}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(
-    articleTitle
-  )}&prop=revisions&rvprop=content&format=json`;
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const pages = data.query.pages;
-    const pageId = Object.keys(pages)[0];
-    if (pageId === "-1") {
-      vscode.window.showErrorMessage("Article not found");
-    } else {
-      const content = pages[pageId].revisions[0]["*"];
-      await vscode.window.showTextDocument(
-        await vscode.workspace.openTextDocument({
-          content,
-          language: "wikitext"
-        })
-      );
-    }
-  } catch (error) {
-    vscode.window.showErrorMessage("Error fetching Wikipedia content: " + error.message);
-  }
-}
-
-// src/commands/createTranslationTab.ts
-var vscode2 = __toESM(require("vscode"));
-async function createTranslationTab(language, targetTitle) {
-  const translationContent = `/* Start translating '${targetTitle}' to ${language} here */`;
-  return await vscode2.window.showTextDocument(
-    await vscode2.workspace.openTextDocument({
-      content: translationContent,
-      language: "wikitext"
-    }),
-    { viewColumn: vscode2.ViewColumn.Beside }
-  );
-}
-
 // src/commands/postTranslation.ts
-var vscode3 = __toESM(require("vscode"));
 async function postTranslation(language, targetTitle, content) {
-  const summary = await vscode3.window.showInputBox({
+  const summary = await vscode.window.showInputBox({
     placeHolder: "Enter a summary for your edit"
   });
   if (!summary) {
-    vscode3.window.showErrorMessage("Edit summary is required");
+    vscode.window.showErrorMessage("Edit summary is required");
     return;
   }
   try {
@@ -6484,67 +6440,17 @@ async function postTranslation(language, targetTitle, content) {
     });
     const data = await response.json();
     if (data && data.edit && data.edit.result === "Success") {
-      vscode3.window.showInformationMessage("Article successfully posted to Wikipedia.");
+      vscode.window.showInformationMessage("Article successfully posted to Wikipedia.");
     } else {
-      vscode3.window.showErrorMessage("Failed to post the article. Please check your credentials and try again.");
+      vscode.window.showErrorMessage("Failed to post the article. Please check your credentials and try again.");
     }
   } catch (error) {
-    vscode3.window.showErrorMessage("Error posting to Wikipedia: " + error.message);
+    vscode.window.showErrorMessage("Error posting to Wikipedia: " + error.message);
   }
-}
-
-// src/extension.ts
-function activate(context) {
-  const startTranslationCommand = vscode4.commands.registerCommand(
-    "extension.startTranslation",
-    async () => {
-      const sourceLanguage = await vscode4.window.showInputBox({
-        placeHolder: "Enter source language for the Wikipedia article (e.g., en for English)"
-      });
-      if (!sourceLanguage) {
-        vscode4.window.showErrorMessage("Source language is required");
-        return;
-      }
-      const articleTitle = await vscode4.window.showInputBox({
-        placeHolder: `Enter the title of the Wikipedia article in ${sourceLanguage}`
-      });
-      if (!articleTitle) {
-        vscode4.window.showErrorMessage("Article title is required");
-        return;
-      }
-      const targetLanguage = await vscode4.window.showInputBox({
-        placeHolder: "Enter target language for translation (e.g., ja for Japanese)"
-      });
-      if (!targetLanguage) {
-        vscode4.window.showErrorMessage("Target language is required");
-        return;
-      }
-      const targetArticleTitle = await vscode4.window.showInputBox({
-        placeHolder: "Enter the title for the translated article"
-      });
-      if (!targetArticleTitle) {
-        vscode4.window.showErrorMessage("Translated article title is required");
-        return;
-      }
-      await fetchWikiContent(sourceLanguage, articleTitle);
-      const editor = await createTranslationTab(targetLanguage, targetArticleTitle);
-      const postCommand = vscode4.commands.registerCommand("extension.postTranslation", async () => {
-        if (editor) {
-          const content = editor.document.getText();
-          await postTranslation(targetLanguage, targetArticleTitle, content);
-        }
-      });
-      context.subscriptions.push(postCommand);
-    }
-  );
-  context.subscriptions.push(startTranslationCommand);
-}
-function deactivate() {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  activate,
-  deactivate
+  postTranslation
 });
 /*! Bundled license information:
 

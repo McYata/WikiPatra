@@ -4,10 +4,9 @@
   "description": "VSCode extension for Wikipedia translation assistance",
   "main": "out/extension.js",
   "scripts": {
-    "build": "esbuild src/extension.ts --bundle --outfile=out/extension.js --platform=node --external:vscode",
-    "watch": "esbuild src/extension.ts --bundle --outfile=out/extension.js --watch --platform=node --external:vscode",
-    "esbuild": "esbuild src/extension.ts src/commands/fetchWikiContent.ts --bundle --outdir=out --platform=node --external:vscode",
-    "prepare": "npm run esbuild"
+    "build": "node esbuild.config.js",
+    "watch": "node esbuild.config.js --watch",
+    "esbuild": "node esbuild.config.js"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
